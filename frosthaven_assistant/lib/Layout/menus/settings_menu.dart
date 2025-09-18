@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:frosthaven_assistant/Layout/menus/save_menu.dart';
+import 'package:frosthaven_assistant/Layout/menus/server_discovery_dialog.dart';
 import 'package:frosthaven_assistant/Resource/commands/clear_unlocked_classes_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/set_ally_deck_in_og_gloom_command.dart';
 import 'package:frosthaven_assistant/Resource/commands/track_standees_command.dart';
@@ -443,17 +444,35 @@ class SettingsMenuState extends State<SettingsMenu> {
                                         });
                                   }),
 
-                              Container(
-                                margin: const EdgeInsets.only(top: 10),
-                                width: 200,
-                                height: 40,
-                                child: TextField(
-                                    controller: _serverTextController,
-                                    decoration: const InputDecoration(
-                                      counterText: "",
-                                      helperText: "server ip address",
-                                    ),
-                                    maxLength: 20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(top: 10),
+                                    width: 200,
+                                    height: 40,
+                                    child: TextField(
+                                        controller: _serverTextController,
+                                        decoration: const InputDecoration(
+                                          counterText: "",
+                                          helperText: "server ip address",
+                                        ),
+                                        maxLength: 20),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.search),
+                                    onPressed: () async {
+                                      final result = await showDialog<DiscoveredServer>(
+                                        context: context,
+                                        builder: (context) => const ServerDiscoveryDialog(),
+                                      );
+                                      if (result != null) {
+                                        _serverTextController.text = result.address;
+                                        _portTextController.text = result.port.toString();
+                                      }
+                                    },
+                                  ),
+                                ],
                               ),
 
                               Container(

@@ -48,6 +48,8 @@ abstract class GameServer {
   void send(String data);
   String currentStateMessage(String commandDescription);
   Future<String> getConnectToIP();
+  void startAdvertising(String ip, int port);
+  void stopAdvertising();
 
   void sendPing();
   void addClientConnection(Socket client);
@@ -84,6 +86,7 @@ abstract class GameServer {
           'Server Online: IP: $connectTo, Port: ${server.port.toString()}';
       log(info);
       setNetworkMessage(info);
+      startAdvertising(connectTo, server.port);
       resetState();
       send(currentStateMessage(""));
       var subscriptions = server.listen((Socket client) {
@@ -119,6 +122,7 @@ abstract class GameServer {
     serverEnabled = false;
     leftOverMessage = "";
 
+    stopAdvertising();
     resetState();
   }
 
