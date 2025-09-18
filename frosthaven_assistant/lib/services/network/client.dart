@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:frosthaven_assistant/services/network/communication.dart';
 import 'package:frosthaven_assistant/services/network/network.dart';
+import 'package:multicast_dns/multicast_dns.dart';
 
 import '../../Resource/settings.dart';
 import '../../Resource/state/game_state.dart';
@@ -179,4 +180,42 @@ class Client {
     }
     _serverResponsive = true;
   }
+
+  Stream<DiscoveredServer> discoverServers() async* {
+    final MDnsClient client = MDnsClient();
+    await client.start();
+
+    const String name = '_frosthaven._tcp.local';
+    await for (final PtrResourceRecord ptr in client.lookup<PtrResourceRecord>(
+      ResourceRecordQuery.serverPointer(name),
+    )) {
+      await for (final SrvResourceRecord srv in client.lookup<SrvResourceRecord>(
+        ResourceRecordQuery.service(ptr.domainName),
+      )) {
+        await for (final IPAddressResourceRecord ip
+            in client.lookup<IPAddressResourceRecord>(
+          ResourceRecordQuery.addressIPv4(srv.target),
+        )) {
+          yield DiscoveredServer(
+            name: ptr.domainName,
+            address: ip.address.address,
+            port: srv.port,
+          );
+        }
+      }
+    }
+    client.stop();
+  }
+}
+
+class DiscoveredServer {
+  DiscoveredServer({
+    required this.name,
+    required this.address,
+    required this.port,
+  });
+
+  final String name;
+  final String address;
+  final int port;
 }

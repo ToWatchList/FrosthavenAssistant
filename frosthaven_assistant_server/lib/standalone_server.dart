@@ -2,11 +2,15 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'dart:io';
+
+import 'package:frosthaven_assistant_server/bonjour.dart';
 import 'package:frosthaven_assistant_server/connection_health.dart';
 import 'package:frosthaven_assistant_server/game_server.dart';
 import 'package:frosthaven_assistant_server/server_state.dart';
 
 class StandaloneServer extends GameServer {
+  final Bonjour _bonjour = Bonjour();
 
   final List<Socket> _clientConnections = List.empty(growable: true);
   final ServerState _state = ServerState();
@@ -243,5 +247,14 @@ class StandaloneServer extends GameServer {
       return "Closed client: ";
     }
   }
-  
+
+  @override
+  void startAdvertising(String ip, int port) {
+    _bonjour.advertise(ip, port);
+  }
+
+  @override
+  void stopAdvertising() {
+    _bonjour.stop();
+  }
 }

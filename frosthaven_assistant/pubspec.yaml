@@ -66,6 +66,7 @@ dependencies:
   format: ^1.4.0
   frosthaven_assistant_server:
     path: ../frosthaven_assistant_server
+  multicast_dns: ^0.3.3
 
 
 
